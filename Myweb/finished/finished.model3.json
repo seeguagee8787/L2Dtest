@@ -1,0 +1,49 @@
+{
+	"Version": 3,
+	"FileReferences": {
+		"Moc": "finished.moc3",
+		"Textures": [
+			"finished.2048/texture_00.png"
+		],
+		"Physics": "finished.physics3.json",
+		"DisplayInfo": "finished.cdi3.json",
+		"Expressions": [
+			{
+				"Name": "jacket_on",
+				"File": "expressions/cloth.exp3.json"
+			},
+			{
+				"Name": "happy",
+				"File": "expressions/happy.exp3.json"
+			},
+			{
+				"Name": "angry",
+				"File": "expressions/angry.exp3.json"
+			},
+			{
+				"Name": "neutral",
+				"File": "expressions/normal.exp3.json"
+			},
+			{
+				"Name": "jacket_off",
+				"File": "expressions/no_cloth.exp3.json"
+			}
+		]
+	},
+	"Groups": [
+		{
+			"Target": "Parameter",
+			"Name": "EyeBlink",
+			"Ids": [
+				"ParamEyeLOpen",
+				"ParamEyeROpen"
+			]
+		},
+		{
+			"Target": "Parameter",
+			"Name": "LipSync",
+			"Ids": []
+		}
+	],
+	"HitAreas": []
+}

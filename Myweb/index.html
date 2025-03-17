@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>我的Live2D網頁</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="js/live2dcubismcore.min.js"></script>
+    <script src="js/live2d.min.js"></script>
+    <script src="js/pixi.min.js"></script>
+    <script src="js/index.min.js"></script>
+    <script src="js/extra.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>  
+    <button id="toggleJacket">外套顯示/隱藏</button>
+    <button id="setHappy">開心</button>
+    <button id="setAngry">生氣</button>
+    <button id="setNeutral">正常</button>
+    <canvas id=canvas></canvas>
+
+    <div id="control"></div>
+
+    <script type="text/javascript">
+    // const cubism2Model =
+    // "./finished/finished.model3.json";
+    // const cubism4Model =
+    // "https://cdn.jsdelivr.net/gh/guansss/pixi-live2d-display/test/assets/haru/haru_greeter_t03.model3.json";
+
+    const live2d = PIXI.live2d;
+
+    (async function main() {
+    const app = new PIXI.Application({
+        view: document.getElementById("canvas"),
+        autoStart: true,
+        resizeTo:window,
+        backgroundColor: 0x333333
+    });
+
+    const models = await Promise.all([
+        live2d.Live2DModel.from("./finished/finished.model3.json"),
+    ]);
+
+    PIXI.live2d.Live2DModel.from("./finished/finished.model3.json").then((model) => {
+        window.model = model;
+        console.log("🎨 Live2D 模型載入成功！");
+    });
+
+
+    // window.model = models[0];  // 確保模型載入成功後指向 window.model
+    
+    models.forEach((model) => {
+        app.stage.addChild(model);
+
+        const scaleX = (innerWidth * 0.4) / model.width;
+        const scaleY = (innerHeight * 0.8) / model.height;
+
+        // fit the window
+        model.scale.set(Math.min(scaleX, scaleY));
+
+        model.y = innerHeight * 0.1;
+        model.x = innerWidth * 0.4  
+        draggable(model);
+        // addFrame(model);
+        // addHitAreaFrames(model);
+            
+        // 🔽 滑鼠滾輪縮放模型
+        model.interactive = true; // 啟用互動
+        window.addEventListener(
+            "wheel", 
+            (event) => {
+                event.preventDefault(); // 阻止頁面滾動
+                let delta = event.deltaY > 0 ? -0.05 : 0.05;
+                models.forEach((model) => {
+                    let newScale = Math.max(0.05, Math.min(0.5, model.scale.x + delta));
+                    gsap.to(model.scale, {
+                        x: newScale,
+                        y: newScale,
+                        duration: 0.3, // 平滑動畫時間（秒）
+                        ease: "power2.out", // 使用平滑的動畫效果
+                    });
+            });
+        },
+        { passive: false } // 讓 preventDefault() 生效
+    );
+    });
+
+    const model2 = models[0];
+    const model4 = models[1];
+
+
+    // handle tapping
+
+    // model2.on("hit", (hitAreas) => {
+    //     if (hitAreas.includes("body")) {
+    //     model2.motion("tap_body");
+    //     }
+
+    //     if (hitAreas.includes("head")) {
+    //     model2.expression();
+    //     }
+    // });
+
+    // model4.on("hit", (hitAreas) => {
+    //     if (hitAreas.includes("Body")) {
+    //     model4.motion("Tap");
+    //     }
+
+    //     if (hitAreas.includes("Head")) {
+    //     model4.expression();
+    //     }
+    // });
+    })();
+
+    function draggable(model) {
+    model.buttonMode = true;
+    model.on("pointerdown", (e) => {
+        model.dragging = true;
+        model._pointerX = e.data.global.x - model.x;
+        model._pointerY = e.data.global.y - model.y;
+    });
+    model.on("pointermove", (e) => {
+        if (model.dragging) {
+        model.position.x = e.data.global.x - model._pointerX;
+        model.position.y = e.data.global.y - model._pointerY;
+        }
+    });
+    model.on("pointerupoutside", () => (model.dragging = false));
+    model.on("pointerup", () => (model.dragging = false));
+    }
+
+    function checkbox(name, onChange) {
+    const id = name.replace(/\W/g, "").toLowerCase();
+
+    let checkbox = document.getElementById(id);
+
+    if (!checkbox) {
+        const p = document.createElement("p");
+        p.innerHTML = `<input type="checkbox" id="${id}"> <label for="${id}">${name}</label>`;
+
+        document.getElementById("control").appendChild(p);
+        checkbox = p.firstChild;
+    }
+
+    checkbox.addEventListener("change", () => {
+        onChange(checkbox.checked);
+    });
+
+    onChange(checkbox.checked);
+    }
+
+    </script>
+
+
+    <style>
+        html, body {
+            width: 1920px;
+            height: 1080px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* 禁止滾動 */
+            background-color: #333;
+        }
+    </style>
+    <!-- <div style="position: absolute; top: 20px; right: 20px;">
+        <button onclick="window.model.expression('jacket_on')">穿上外套</button>
+        <button onclick="window.model.expression('jacket_off')">脫下外套</button>
+    </div> -->
+    <script src="js/toggleExpressions.js"></script>
+</body>
+</html>
